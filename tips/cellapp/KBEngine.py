@@ -1688,6 +1688,486 @@ class EntityComponent:
 		"""
 		pass
 
+
+
+
+class Space:
+
+	base = None
+	"""
+	类型：只读 BaseEntityCall
+	base是用于联系Entity实体的entityCall。这个属性是只读的，且如果这个实体没有关联的Entity实体时属性是None。
+	"""
+
+
+	className = str()
+	"""
+	类型：只读 string
+	实体的类名。
+	"""
+
+	id = int()
+	"""
+	类型：只读 Integer
+	id是Entity的对象id。这个id是一个整型，在base，cell和client相关联的实体之间是相同的。 这个属性是只读的。
+	"""
+
+
+	isDestroyed = bool()
+	"""
+	类型：只读 bool
+	如果这个属性的值为True，Entity则已经被销毁了。
+	"""
+
+	spaceID = int()
+	"""
+	类型：只读 uint32
+	这个属性是实体所在的空间的ID，cell与客户端这个值都保持一致。
+	"""
+
+
+
+	def addProximity( self, rangeXZ, rangeY, userArg ):
+		"""
+		功能说明：
+		创建一个范围触发器，当有其它实体进入或离开这个触发器区域的时候会通知这个Entity。这个区域是一个方形（为了效率）。如果
+		其它实体在x轴和z轴上均在给定的距离里面，则实体被视为在这个范围里面。这个Entity通过onEnterTrap和onLeaveTrap函数被
+		通知，这两个函数可以如下定义：
+		def onEnterTrap( self, entityEntering, rangeXZ, rangeY, controllerID, userArg = 0 ):
+		def onLeaveTrap( self, entityLeaving, rangeXZ, rangeY, controllerID, userArg = 0 ):
+		由于这个范围触发器是一个控制器，使用Entity.cancelController带上控制器ID来删除它。
+		需要注意的是回调有可能会立刻被触发，即使在addProximity()调用返回之前。
+	
+
+		参数：
+
+		@ rangeXZ
+
+		float，给定触发器xz轴区域的大小，必须大于等于0。
+	
+
+		@ rangeY
+
+		float，给定触发器y轴高度，必须大于等于0。
+		需要注意的是，这个参数要生效必须开放kbengine_defaults.xml->cellapp->coordinate_system->rangemgr_y
+		开放y轴管理会带来一些消耗，因为一些游戏大量的实体都在同一y轴高度或者在差不多水平线高度，此时碰撞变得非常密集。
+		3D太空类游戏或者小房间类实体较少的游戏比较适合开放此选项。
+	
+
+		@ userArg
+
+		是一个可选的整型，所有控制器共有。如果这个值不为0则传给回调函数。建议
+		在回调原型里设置默认值为0。
+	
+
+		"""
+		pass
+
+	def addTimer( self, start, interval=0.0, userData=0 ):
+		"""
+		功能说明：
+		注册一个定时器，定时器由回调函数onTimer触发，回调函数将在"initialOffset"秒后被执行第1次，而后将每间隔"repeatOffset"秒执行1次，可设定一个用户参数"userArg"（仅限integer类型）。
+		onTimer 函数必须在entity的cell部分被定义，且带有2个参数，第1个integer类型的是timer的id（可用于移除timer的"delTimer"函数），第2个是用户参数"userArg"。
+		例子:
+		# 这里是使用addTimer的一个例子
+		import KBEngine
+		class MyCellEntity( KBEngine.Entity ):
+		def __init__( self ):
+		KBEngine.Entity.__init__( self )
+		# 增加一个定时器，5秒后执行第1次，而后每1秒执行1次，用户参数是9
+		self.addTimer( 5, 1, 9 )
+		# 增加一个定时器，1秒后执行，用户参数缺省是0
+		self.addTimer( 1 )
+		# Entity的定时器回调"onTimer"被调用
+		def onTimer( self, id, userArg ):
+		print "MyCellEntity.onTimer called: id %i, userArg: %i" % ( id, userArg )
+		# if 这是不断重复的定时器，当不再需要该定时器的时候，调用下面函数移除:
+		#     self.delTimer( id )
+	
+
+		参数：
+
+		@ initialOffset
+
+		float，指定定时器从注册到第一次回调的时间间隔（秒）。
+	
+
+		@ repeatOffset
+
+		float，指定第一次回调执行后每次执行的时间间隔（秒）。必须用函数delTimer移除定时器，否则它会一直重复下去。值小于等于0将被忽略。
+	
+
+		@ userArg
+
+		integer，指定底层回调"onTimer"时的userArg参数值。
+	
+
+		返回:
+		integer，该函数返回timer的内部id，这个id可用于delTimer移除定时器。
+		"""
+		pass
+
+
+	def delTimer( self, id ):
+		"""
+		功能说明：
+		函数delTimer用于移除一个注册的定时器，移除后的定时器不再执行。只执行1次的定时器在执行回调后自动移除，不必要使用delTimer移除。
+		如果delTimer函数使用一个无效的id（例如已经移除），将会产生错误。
+	
+
+		参数：
+
+		@ id
+
+		integer，它指定要移除的定时器id。如果参数为字符串"All"，则一次性移除所有的定时器。
+	
+
+		"""
+		pass
+
+	def destroy( self ):
+		"""
+		功能说明：
+		这个函数销毁它的本地Entity实例，如果实体在其他进程上存在ghost部分也会同时通知销毁。
+		这个函数最好由实体自己调用，如果这个实体是一个ghost则会抛出一个异常。如果回调函数onDestroy()被实现则被调用。
+		"""
+		pass
+
+	
+
+	def entitiesInRange( self, range, entityType=None, position=None
+            ):
+		"""
+		功能说明：
+		在给定的距离内搜索实体。这是一个球形的搜索，3个轴的距离
+		都要测量。这可以找到在这个实体的View范围之外的实体，但不能找到其他cell的实体。
+		例子：
+		self.entitiesInRange( 100, 'Creature', (100, 0, 100) )
+		搜索到‘Creature’类型的实体列表（‘Creature’的子类实例化的实体）。中心点是(100, 0, 100)，搜索半径是100米。
+		[ e for e in self.entitiesInRange( 100, None, (100,0,100) ) if isinstance( e, BaseType ) ]
+		将给出一个来自‘BaseType’或‘BaseType’的子类实例化的实体列表。
+	
+
+		参数：
+
+		@ range
+
+		围绕这个实体搜索的距离，float类型
+	
+
+		@ entityType
+
+		一个可选的字符串参数，实体的类型名称，用于匹配实体。如果实体类型是一个有效的类名（ 有效的实体类型在res/scripts/entities.xml列出 ），
+		则只有这个类型的实体会被返回，否则将这个范围的所有实体都返回。
+	
+
+		@ position
+
+		一个可选的Vector3类型参数，作为搜索半径的中心, 默认以实体自身为中心。
+	
+
+		返回：
+		在给定范围内的Entity对象列表。
+		"""
+		pass
+
+	
+
+	def getRandomPoints( self, centerPos, maxRadius, maxPoints, layer
+            ):
+		"""
+		功能说明：
+		这个函数用于获取以某个坐标点为中心一定区域内Entity.navigate可到达的随机坐标点。
+	
+
+		参数：
+
+		@ centerPos
+
+		Vector3，Entity中心坐标点
+	
+
+		@ maxRadius
+
+		float，最大的搜索半径
+	
+
+		@ maxPoints
+
+		uint32，最多返回的随机坐标点数量。
+	
+
+		@ layer
+
+		int8，使用某个层的navmesh来搜索。
+	
+
+		返回：
+		tuple，包含一个或者多个坐标的数组。
+		"""
+		pass
+
+	
+
+	def writeToDB( self, shouldAutoLoad, dbInterfaceName ):
+		"""
+		功能说明：
+		这个函数保存与这个实体相关的数据到数据库，包括base实体的数据。在数据确认传到数据库之前base实体的onWriteToDB函数会被调用。
+		cell实体的数据同时备份在base实体，确保遇到灾难恢复数据时数据是最新的。
+		这个函数只能在real实体且实体必须存在base部分时才允许被调用。
+	
+
+		参数：
+
+		@ shouldAutoLoad
+
+		这个可选参数指定这个实体在服务启动的时候是否需要从数据库加载。
+		注意：服务器启动时自动加载实体，底层默认将会调用createEntityAnywhereFromDBID将实体创建到一个负载最小的baseapp上，整个过程将会在第一个启动的baseapp调用onBaseAppReady之前完成。
+		脚本层可以在个性化脚本(kbengine_defaults.xml->baseapp->entryScriptFile定义)中重新实现实体的创建方法，例如：
+		def onAutoLoadEntityCreate(entityType, dbid):
+		KBEngine.createEntityFromDBID(entityType, dbid)
+	
+
+		@ dbInterfaceName
+
+		string，可选参数，指定由某个数据库接口来完成,
+		默认使用"default"接口。数据库接口由kbengine_defaults.xml->dbmgr->databaseInterfaces中定义。
+	
+
+		"""
+		pass
+
+
+	def getComponent( self, componentName, all ):
+		"""
+		功能说明：
+		该函数用于获取实体所绑定的某一类组件实例。
+	
+
+		参数：
+
+		@ componentName
+
+		string，组件类型名称，组件的模块名称。
+	
+
+		@ all
+
+		bool，如果为True，返回所有同类组件实例，否则只返回第一个或空列表。
+	
+
+		"""
+		pass
+
+	def fireEvent( self, eventName, *args ):
+		"""
+		功能说明：
+		该函数用于触发实体事件。
+	
+
+		参数：
+
+		@ eventName
+
+		string，要触发的事件名称。
+	
+
+		@ args
+
+		要附带的事件数据，可变参数。
+	
+
+		"""
+		pass
+
+	def registerEvent( self, eventName, callback ):
+		"""
+		功能说明：
+		该函数用于注册实体事件。
+	
+
+		参数：
+
+		@ eventName
+
+		string，要注册监听的事件名称。
+	
+
+		@ callback
+
+		当事件触发时，用于响应该事件的回调方法。
+	
+
+		"""
+		pass
+
+	def deregisterEvent( self, eventName, callback ):
+		"""
+		功能说明：
+		该函数用于注销监听实体事件。
+	
+
+		参数：
+
+		@ eventName
+
+		string，要注销监听的事件名称。
+	
+
+		@ callback
+
+		要注销监听的回调方法。
+	
+
+		"""
+		pass
+
+	def onDestroy( self ):
+		"""
+		如果这个函数在脚本中有实现，这个函数在调用Entity.destroy()后，在实际销毁之前被调用。
+		这个函数没有参数。
+		"""
+		pass
+
+	def onEnterTrap( self, entity, rangeXZ, rangeY, controllerID, userArg
+            ):
+		"""
+		当注册了使用Entity.addProximity注册了一个范围触发器，有其他实体进入触发器时，该回调函数被调用。
+	
+
+		参数：
+
+		@ entity
+
+		已经进入了范围的实体。
+	
+
+		@ rangeXZ
+
+		float，给定触发器xz轴区域的大小，必须大于等于0。
+	
+
+		@ rangeY
+
+		float，给定触发器y轴高度，必须大于等于0。
+		需要注意的是，这个参数要生效必须开放kbengine_defaults.xml->cellapp->coordinate_system->rangemgr_y
+		开放y轴管理会带来一些消耗，因为一些游戏大量的实体都在同一y轴高度或者在差不多水平线高度，此时碰撞变得非常密集。
+		3D太空类游戏或者小房间类实体较少的游戏比较适合开放此选项。
+	
+
+		@ controllerID
+
+		这个触发器的控制器id。
+	
+
+		@ userArg
+
+		这个参数的值由用户调用addProximity时给出，用户可以根据此参数对当前行为做一些判断。
+	
+
+		"""
+		pass
+
+
+	def onLeaveTrap( self, entity, rangeXZ, rangeY, controllerID, userArg
+            ):
+		"""
+		如果这个函数在脚本中有实现，当实体离开了当前实体注册的范围触发器区域时被触发，范围触发器由Entity.addProximity注册。
+	
+
+		参数：
+
+		@ entity
+
+		已经离开触发器区域的实体。
+	
+
+		@ rangeXZ
+
+		float，给定触发器xz轴区域的大小，必须大于等于0。
+	
+
+		@ rangeY
+
+		float，给定触发器y轴高度，必须大于等于0。
+		需要注意的是，这个参数要生效必须开放kbengine_defaults.xml->cellapp->coordinate_system->rangemgr_y
+		开放y轴管理会带来一些消耗，因为一些游戏大量的实体都在同一y轴高度或者在差不多水平线高度，此时碰撞变得非常密集。
+		3D太空类游戏或者小房间类实体较少的游戏比较适合开放此选项。
+	
+
+		@ controllerID
+
+		这个触发器的控制器ID。
+	
+
+		@ userArg
+
+		这个参数的值由用户调用addProximity时给出，用户可以根据此参数对当前行为做一些判断。
+	
+
+		"""
+		pass
+
+
+	def onRestore( self ):
+		"""
+		如果这个函数在脚本中有实现，这个函数在Cell应用程序崩溃后在其它Cell应用程序上重新创建该实体时被调用。这个函数没有参数。
+		"""
+		pass
+
+	def onSpaceGone( self ):
+		"""
+		如果这个函数在脚本中有实现，当前实体所在的Space将要销毁时触发
+		。这个函数没有参数。
+		"""
+		pass
+
+
+	def onTimer( self, timerHandle, userData ):
+		"""
+		功能说明：
+		这个函数当一个与此实体关联的定时器触发的时候被调用。
+		一个定时器可以使用Entity.addTimer函数添加。
+	
+
+		参数：
+
+		@ timerHandle
+
+		定时器的id。
+	
+
+		@ userData
+
+		传进Entity.addTimer的integer用户数据。
+	
+
+		"""
+		pass
+
+
+	def onUpdateBegin( self ):
+		"""
+		当同步一帧开始时被调用。
+		"""
+		pass
+
+	def onUpdateEnd( self ):
+		"""
+		当同步一帧结束时被调用。
+		"""
+		pass
+
+
+	def onWriteToDB( self ):
+		"""
+		如果这个函数在脚本中有实现，这个函数在实体将要存档到数据库时被调用。
+		"""
+		pass
+
+
+
+
 import Math
 
 LOG_TYPE_DBG = None
