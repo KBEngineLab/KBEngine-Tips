@@ -685,7 +685,7 @@ class EntityComponent:
 
 import Math
 
-class Proxy:
+class Proxy(Entity):
 	__ACCOUNT_NAME__ = str()
 	"""
 	类型：只读 string
