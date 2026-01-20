@@ -675,6 +675,74 @@ class Entity:
 		"""
 		pass
 
+	def navigateToDetour( self, destination, velocity, distance, maxMoveDistance,
+                maxSearchDistance, faceMovement, layer, userData ):
+		"""
+		和navigate()方法一样，但是这个方法使用Detour进行路径规划，Detour导航可以在服务端贴合navmesh高度，在多层建筑中非常有用。
+		
+		功能说明：
+		使用导航系统来使这个Entity向一个目标点移动，成功或失败会调用回调函数。
+		KBEngine可以有数个预先生成好的导航网格，不同的网格大小（会导致不同的导航路径）。
+		任何实体，在任意时刻只能有一个移动控制器，重复调用任何移动函数将终止之前的移动控制器。
+		返回一个可以用于取消这次移动的控制器ID。
+		例如：
+		Entity.cancelController(
+		movementID )。
+		移动取消还可以调用Entity.cancelController( "Movement" )。当移动被取消之后通知方法将
+		不被调用。
+		回调函数如下定义：
+		def onMove( self, controllerID, userData ):
+		def onMoveOver( self, controllerID, userData ):
+		def onMoveFailure( self, controllerID, userData ):
+		
+
+		
+	
+		参数：
+
+		@ destination
+
+		Vector3，Entity移向的目标点。
+	
+
+		@ velocity
+
+		float，Entity的移动速度，单位m/s
+	
+
+		@ distance
+
+		float，距离目标小于该值停止移动，如果该值为0则移动到目标位置。
+	
+
+		@ maxMoveDistance
+
+		float，最大的移动距离。
+	
+
+		@ maxSearchDistance
+
+		float，从导航数据中最大搜索距离。
+	
+
+		@ faceMovement
+
+		bool，如果实体面向移动方向则为true（默认）。如果是其它机制则为false。
+	
+
+		@ layer
+
+		int8，使用某个层的navmesh来寻路。
+	
+
+		@ userData
+
+		object，传给通知函数的数据。
+	
+
+		"""
+		pass
+
 	def navigatePathPoints( self, destination, maxSearchDistance, layer
             ):
 		"""
